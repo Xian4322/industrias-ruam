@@ -1,0 +1,21 @@
+# Render.com Web Service Configuration
+# https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: industrias-ruam-api
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false  # Set this to your Vercel URL after deploying frontend
+      - key: PORT
+        value: 3001
