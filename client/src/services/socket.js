@@ -4,7 +4,7 @@ let socket = null;
 
 export function connectSocket() {
   if (socket?.connected) return socket;
-  const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+  const socketUrl = 'https://industrias-ruam.onrender.com';
   socket = io(socketUrl, {
     transports: ['websocket', 'polling'],
     autoConnect: true,

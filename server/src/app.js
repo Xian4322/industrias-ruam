@@ -63,6 +63,29 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
+// ── Reseed endpoint (forces demo data reload) ──
+app.get('/api/v1/reseed', (req, res) => {
+  try {
+    // Drop all data and re-insert
+    const tables = ['evm_records','change_requests','packaging_qc','quality_checks',
+                     'maintenance_logs','kanban_history','order_materials','orders',
+                     'baseline_config','users'];
+    tables.forEach(t => db.prepare(`DELETE FROM ${t}`).run());
+    console.log('[Reseed] Todas las tablas limpiadas');
+    runSeed(db);
+    const orderCount = db.prepare('SELECT COUNT(*) as c FROM orders').get().c;
+    const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
+    res.json({
+      success: true,
+      message: 'Datos demo re-insertados correctamente',
+      users: userCount,
+      orders: orderCount
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Mount routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/orders', authMiddleware, orderRoutes);
