@@ -66,12 +66,13 @@ app.get('/api/v1/health', (req, res) => {
 // ── Reseed endpoint (forces demo data reload) ──
 app.get('/api/v1/reseed', (req, res) => {
   try {
-    // Drop all data and re-insert
+    db.pragma('foreign_keys = OFF');
     const tables = ['evm_records','change_requests','packaging_qc','quality_checks',
                      'maintenance_logs','kanban_history','order_materials','orders',
                      'baseline_config','users'];
     tables.forEach(t => db.prepare(`DELETE FROM ${t}`).run());
-    console.log('[Reseed] Todas las tablas limpiadas');
+    db.pragma('foreign_keys = ON');
+    console.log('[Reseed] Tablas limpiadas, insertando datos demo...');
     runSeed(db);
     const orderCount = db.prepare('SELECT COUNT(*) as c FROM orders').get().c;
     const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
@@ -82,6 +83,7 @@ app.get('/api/v1/reseed', (req, res) => {
       orders: orderCount
     });
   } catch (err) {
+    db.pragma('foreign_keys = ON');
     res.status(500).json({ error: err.message });
   }
 });
