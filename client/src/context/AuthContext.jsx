@@ -17,8 +17,10 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  const API = 'https://industrias-ruam.onrender.com/api/v1';
+
   const login = async (username, password) => {
-    const res = await fetch('/api/v1/auth/login', {
+    const res = await fetch(`${API}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
