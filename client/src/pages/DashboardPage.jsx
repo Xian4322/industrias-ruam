@@ -63,23 +63,33 @@ export default function DashboardPage() {
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
             <Droplets size={16} className="text-blue-400" /> Consumo de Aceite
           </h3>
+          {/* Main KPI: liters per kg */}
           <div className="text-center mb-3">
-            <p className="text-3xl font-bold text-blue-400">{oil.total_liters || 0} L</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Total consumido</p>
+            <p className={`text-3xl font-bold ${
+              (oil.liters_per_kg || 0) <= 0.14 ? 'text-emerald-400' :
+              (oil.liters_per_kg || 0) <= 0.20 ? 'text-amber-400' : 'text-red-400'
+            }`}>
+              {oil.liters_per_kg || 0} L/kg
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Litros por kg empacado</p>
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              Meta: ≤ 0.14 L/kg &nbsp;|&nbsp; {oil.total_kg_packed || 0} kg empacados
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-2.5 rounded-lg text-center" style={{ background: 'var(--input-bg)' }}>
-              <p className="text-lg font-bold text-amber-400">{oil.tachos_used || 0}</p>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="p-2 rounded-lg text-center" style={{ background: 'var(--input-bg)' }}>
+              <p className="text-sm font-bold text-blue-400">{oil.total_liters || 0} L</p>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Total aceite</p>
+            </div>
+            <div className="p-2 rounded-lg text-center" style={{ background: 'var(--input-bg)' }}>
+              <p className="text-sm font-bold text-amber-400">{oil.tachos_used || 0}</p>
               <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Tachos (20L)</p>
             </div>
-            <div className="p-2.5 rounded-lg text-center" style={{ background: 'var(--input-bg)' }}>
-              <p className="text-lg font-bold text-ruam-gold">{formatCurrency(oil.total_cost)}</p>
-              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Costo total</p>
+            <div className="p-2 rounded-lg text-center" style={{ background: 'var(--input-bg)' }}>
+              <p className="text-sm font-bold text-ruam-gold">{formatCurrency(oil.total_cost)}</p>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Costo</p>
             </div>
           </div>
-          <p className="text-[10px] text-center mt-2" style={{ color: 'var(--text-muted)' }}>
-            Tacho de 20L = S/.{oil.tacho_price || 130}
-          </p>
         </div>
 
         {/* Maintenance */}

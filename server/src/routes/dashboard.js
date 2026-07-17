@@ -106,6 +106,11 @@ router.get('/dashboard-metrics', (req, res) => {
     const totalOilCost = oilData?.total_cost || 0;
     const tachosUsed = totalOilLiters / tachoVolume;
 
+    // Total kg empacados (producto terminado)
+    const kgData = db.prepare('SELECT SUM(kg_requested) as total_kg FROM orders').get();
+    const totalKgPacked = kgData?.total_kg || 0;
+    const litersPerKg = totalKgPacked > 0 ? totalOilLiters / totalKgPacked : 0;
+
     res.json({
       generated_at: new Date().toISOString(),
       total_orders: allOrders.length,
@@ -134,7 +139,9 @@ router.get('/dashboard-metrics', (req, res) => {
         total_cost: parseFloat(totalOilCost.toFixed(2)),
         tachos_used: parseFloat(tachosUsed.toFixed(2)),
         tacho_price: tachoPrice,
-        tacho_volume: tachoVolume
+        tacho_volume: tachoVolume,
+        total_kg_packed: parseFloat(totalKgPacked.toFixed(2)),
+        liters_per_kg: parseFloat(litersPerKg.toFixed(4))
       },
       maintenance: {
         mtbf_hours: maintMetrics.mtbf_hours,
