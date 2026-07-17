@@ -89,6 +89,23 @@ router.get('/dashboard-metrics', (req, res) => {
       };
     });
 
+    // Calculate oil consumption across all orders
+    const oilData = db.prepare(`
+      SELECT SUM(oil_liters) as total_liters, SUM(oil_cost) as total_cost,
+             COUNT(*) as orders_with_oil
+      FROM order_materials
+    `).get();
+
+    const oilConfig = db.prepare(
+      "SELECT config_value FROM baseline_config WHERE config_key = 'oil_price_per_tacho'"
+    ).get();
+    const tachoPrice = oilConfig ? oilConfig.config_value : 130.00;
+    const tachoVolume = 20; // liters
+
+    const totalOilLiters = oilData?.total_liters || 0;
+    const totalOilCost = oilData?.total_cost || 0;
+    const tachosUsed = totalOilLiters / tachoVolume;
+
     res.json({
       generated_at: new Date().toISOString(),
       total_orders: allOrders.length,
@@ -111,6 +128,13 @@ router.get('/dashboard-metrics', (req, res) => {
           value: parseFloat(avgCostPerKg.toFixed(2)),
           status: evaluateKPI('cost_per_kg', avgCostPerKg)
         }
+      },
+      oil_consumption: {
+        total_liters: parseFloat(totalOilLiters.toFixed(2)),
+        total_cost: parseFloat(totalOilCost.toFixed(2)),
+        tachos_used: parseFloat(tachosUsed.toFixed(2)),
+        tacho_price: tachoPrice,
+        tacho_volume: tachoVolume
       },
       maintenance: {
         mtbf_hours: maintMetrics.mtbf_hours,
